@@ -13,9 +13,11 @@ inputs:
   app_name:
     description: 'Application name'
     required: true
+    default: ''
   env_name:
     description: 'Environment Name'
     required: true
+    default: ''
 
 runs:
   using: 'composite'
@@ -23,14 +25,24 @@ runs:
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v3
 
-    - name: Terraform init
+    - name: Terraform init Foundation
+      if: ${{ inputs.app_name == '' }}
+      shell: bash
+      run: |
+        terraform -chdir=iac/environments/prd init \
+        -backend-config="bucket=${{ inputs.cosmos_name }}" \
+        -backend-config="prefix=${{ inputs.realm_name }}/_/${{ inputs.foundation_name }}/_/terraform/state"
+
+    - name: Terraform init Application
+      if: ${{ inputs.app_name != '' }}
       shell: bash
       run: |
         terraform -chdir=iac/environments/${{ inputs.env_name }} init \
         -backend-config="bucket=${{ inputs.cosmos_name }}" \
         -backend-config="prefix=${{ inputs.realm_name }}/_/${{ inputs.foundation_name }}/${{ inputs.app_name }}/${{ inputs.env_name }}/terraform/state"
 
-    - name: Terraform plan
+    - name: Terraform Apply Application
+      if: ${{ inputs.app_name != '' }}
       shell: bash
       run: |
         terraform -chdir=iac/environments/${{ inputs.env_name }} apply -auto-approve

@@ -42,6 +42,12 @@ runs:
         -backend-config="prefix=${{ inputs.realm_name }}/_/${{ inputs.foundation_name }}/${{ inputs.app_name }}/${{ inputs.env_name }}/terraform/state"
 
     - name: Terraform Apply Application
+      if: ${{ inputs.app_name == '' }}
+      shell: bash
+      run: |
+        terraform -chdir=iac/environments/prd apply -auto-approve
+
+    - name: Terraform Apply Application
       if: ${{ inputs.app_name != '' }}
       shell: bash
       run: |

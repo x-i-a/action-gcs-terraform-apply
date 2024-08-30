@@ -1,7 +1,7 @@
 name: 'Apply Terraform'
 description: 'Apply Terraform With State Saved in Google Cloud Storage'
 inputs:
-  tf_bucket:
+  tf_bucket_name:
     description: 'Terraform Bucket Name'
     required: true
   cosmos_name:
@@ -33,7 +33,7 @@ runs:
       shell: bash
       run: |
         terraform -chdir=iac/environments/${{ inputs.env_name }} init \
-        -backend-config="bucket=${{ inputs.tf_bucket }}" \
+        -backend-config="bucket=${{ inputs.tf_bucket_name }}" \
         -backend-config="prefix=${{ inputs.realm_name }}/_/${{ inputs.foundation_name }}/_/terraform/state"
 
     - name: Terraform init Application
@@ -41,7 +41,7 @@ runs:
       shell: bash
       run: |
         terraform -chdir=iac/environments/${{ inputs.env_name }} init \
-        -backend-config="bucket=${{ inputs.tf_bucket }}" \
+        -backend-config="bucket=${{ inputs.tf_bucket_name }}" \
         -backend-config="prefix=${{ inputs.realm_name }}/_/${{ inputs.foundation_name }}/${{ inputs.app_name }}/${{ inputs.env_name }}/terraform/state"
 
     - name: Terraform Apply Application

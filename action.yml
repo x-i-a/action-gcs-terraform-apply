@@ -20,7 +20,7 @@ inputs:
   env_name:
     description: 'Environment Name'
     required: true
-    default: ''
+    default: 'base'
 
 runs:
   using: 'composite'
@@ -32,7 +32,7 @@ runs:
       if: ${{ inputs.app_name == '' }}
       shell: bash
       run: |
-        terraform -chdir=iac/environments/prd init \
+        terraform -chdir=iac/environments/${{ inputs.env_name }} init \
         -backend-config="bucket=${{ inputs.tf_bucket }}" \
         -backend-config="prefix=${{ inputs.realm_name }}/_/${{ inputs.foundation_name }}/_/terraform/state"
 
@@ -48,7 +48,7 @@ runs:
       if: ${{ inputs.app_name == '' }}
       shell: bash
       run: |
-        terraform -chdir=iac/environments/prd apply -auto-approve
+        terraform -chdir=iac/environments/${{ inputs.env_name }} apply -auto-approve
 
     - name: Terraform Apply Application
       if: ${{ inputs.app_name != '' }}

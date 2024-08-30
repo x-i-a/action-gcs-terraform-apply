@@ -41,7 +41,7 @@ runs:
       shell: bash
       run: |
         terraform -chdir=iac/environments/${{ inputs.env_name }} init \
-        -backend-config="bucket=${{ inputs.cosmos_name }}" \
+        -backend-config="bucket=${{ inputs.tf_bucket }}" \
         -backend-config="prefix=${{ inputs.realm_name }}/_/${{ inputs.foundation_name }}/${{ inputs.app_name }}/${{ inputs.env_name }}/terraform/state"
 
     - name: Terraform Apply Application

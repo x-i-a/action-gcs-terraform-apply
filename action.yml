@@ -31,7 +31,6 @@ runs:
       uses: hashicorp/setup-terraform@v3
 
     - name: Terraform init Foundation
-      if: ${{ inputs.app_name == '' }}
       shell: bash
       run: |
         if [ -z "${{ inputs.foundation_name }}" ]; then

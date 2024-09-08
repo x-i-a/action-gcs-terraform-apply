@@ -10,9 +10,11 @@ inputs:
   realm_name:
     description: 'Realm name'
     required: true
+    default: ''
   foundation_name:
     description: 'Foundation name'
     required: true
+    default: ''
   app_name:
     description: 'Application name'
     required: true
@@ -32,26 +34,19 @@ runs:
       if: ${{ inputs.app_name == '' }}
       shell: bash
       run: |
+        if [ -z "${{ inputs.foundation_name }}" ]; then
+          PREFIX="_/terraform/state"
+        elif [ -z "${{ inputs.app_name }}" ]; then
+          PREFIX="${{ inputs.realm_name }}/_/${{ inputs.foundation_name }}/_/terraform/state"
+        else
+          PREFIX="${{ inputs.realm_name }}/_/${{ inputs.foundation_name }}/${{ inputs.app_name }}/${{ inputs.env_name }}/terraform/state"
+        fi
+        
         terraform -chdir=iac/environments/${{ inputs.env_name }} init \
         -backend-config="bucket=${{ inputs.tf_bucket_name }}" \
-        -backend-config="prefix=${{ inputs.realm_name }}/_/${{ inputs.foundation_name }}/_/terraform/state"
-
-    - name: Terraform init Application
-      if: ${{ inputs.app_name != '' }}
-      shell: bash
-      run: |
-        terraform -chdir=iac/environments/${{ inputs.env_name }} init \
-        -backend-config="bucket=${{ inputs.tf_bucket_name }}" \
-        -backend-config="prefix=${{ inputs.realm_name }}/_/${{ inputs.foundation_name }}/${{ inputs.app_name }}/${{ inputs.env_name }}/terraform/state"
+        -backend-config="prefix=$PREFIX"
 
     - name: Terraform Apply Application
-      if: ${{ inputs.app_name == '' }}
-      shell: bash
-      run: |
-        terraform -chdir=iac/environments/${{ inputs.env_name }} apply -auto-approve
-
-    - name: Terraform Apply Application
-      if: ${{ inputs.app_name != '' }}
       shell: bash
       run: |
         terraform -chdir=iac/environments/${{ inputs.env_name }} apply -auto-approve
